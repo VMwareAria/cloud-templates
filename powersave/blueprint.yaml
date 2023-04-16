@@ -85,6 +85,7 @@ resources: # Create a virtual machine
           value: windows
         - key: powersave
           value: ${input.powersave}
+          
   NSXOverlay:
     type: Cloud.NSX.Network
     properties:
