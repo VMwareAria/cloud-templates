@@ -1,0 +1,89 @@
+# Set the name and version
+name: PowerSaver
+version: 0.0.7
+# AUTHOR: Bengt Grønås, VMware
+# CO-AUTHOR: Lars Olsson, VMware
+# https://bengt.no 
+OverlayformatVersion: 1
+# Set options for this deployment template
+options: # Options to allow or not
+  gitlabSyncEnable: true
+  gitlabSyncDelete: false
+  # Enable posting to Slack
+  slackPostEnable: true
+inputs: # Select the deployment environment (Dev/Test or Production)
+  environment:
+    type: string
+    title: Environment
+    description: Select a deployment environment
+    oneOf:
+      - title: Dev/Test
+        const: DevTest
+      - title: Production
+        const: Prod
+    default: Prod
+  # Select the size of the virtual machine
+  vmSize:
+    title: VM Size
+    type: string
+    description: |-
+      <h3>Think about our budget and power usage</h3>
+       <b>  </b> <br>
+      <b>Select the size of the deployment:</b> <br>
+      <ul>
+      <li>Small =  2CPU - 4GB RAM<br>
+      <li>Medium = 4CPU - 8GB RAM<br> 
+      <li>Large = 8CPU - 16GB RAM<br>
+      <li>X-Large  = 16CPU - 32GB RAM<br>
+      </ul>
+    default: small
+    oneOf:
+      - title: Small (2 CPUs, 4GB RAM)
+        const: small
+      - title: Medium (4 CPUs, 8GB RAM)
+        const: medium
+      - title: Large (8 CPUs, 16GB RAM)
+        const: large
+      - title: X-Large (16 CPUs, 32GB RAM)
+        const: X-Large
+  # Enable or disable power saving mode
+  powersave:
+    title: Powersave mode
+    type: boolean
+    description: |-
+      <h3> Enable powersave mode </h3>
+      Please consider to contribute to our Sustainability by automatically shutdown workloads as a green service <br>
+       <b>  </b> <br>
+       <b> Default hours:</b> <br>
+      <ul>
+      <li>Power On : 06:00:00 <br>
+      <li>Power Off: 18:00:00 <br>
+      </ul>
+resources: # Create a virtual machine
+  Cloud_Machine_1:
+    type: Cloud.vSphere.Machine
+    properties: # Set a prefix for the virtual machine name
+      prefix: winserver #Extensibility -> Subscriptions!
+      image: salt-windows-2019
+      flavor: ${input.vmSize}
+      newName: ${self.resourceName}
+      constraints:
+        - tag: cloud:vsphere
+      remoteAccess:
+        authentication: usernamePassword
+        username: Administrator
+        password: Secret$Pass123!
+      networks:
+        - network: ${resource.NSXOverlay.id}
+          securityGroups: []
+      tags:
+        - key: os
+          value: windows
+        - key: powersave
+          value: ${input.powersave}
+  NSXOverlay:
+    type: Cloud.NSX.Network
+    properties:
+      networkType: existing
+      constraints:
+        - tag: '${input.environment == "DevTest" ? "network:industrial-test" : "network:industrial-prod"}'
