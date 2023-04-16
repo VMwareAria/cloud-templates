@@ -1,10 +1,12 @@
 # Set the name and version
 name: PowerSaver
-version: 0.0.8
-# AUTHOR: Bengt Grønås #
-# AUTHOR: Lars Olsson  #
-# https://bengt.no     #
-OverlayformatVersion: 1
+version: 0.0.7
+# AUTHOR: Bengt Grønås, VMware
+# CO-AUTHOR: Lars Olsson, VMware
+# LOCATION: https://bengt.no 
+# Part 1:  https://bengt.no/post/2023-03-27/
+# Part 2:  https://bengt.no/post/2023-04-16/
+
 # Set options for this deployment template
 options: # Options to allow or not
   gitlabSyncEnable: true
@@ -46,6 +48,7 @@ inputs: # Select the deployment environment (Dev/Test or Production)
         const: large
       - title: X-Large (16 CPUs, 32GB RAM)
         const: X-Large
+
   # Enable or disable power saving mode
   powersave:
     title: Powersave mode
@@ -59,6 +62,7 @@ inputs: # Select the deployment environment (Dev/Test or Production)
       <li>Power On : 06:00:00 <br>
       <li>Power Off: 18:00:00 <br>
       </ul>
+
 resources: # Create a virtual machine
   Cloud_Machine_1:
     type: Cloud.vSphere.Machine
@@ -72,7 +76,7 @@ resources: # Create a virtual machine
       remoteAccess:
         authentication: usernamePassword
         username: Administrator
-        password: VMware1!
+        password: Secret$Pass123!
       networks:
         - network: ${resource.NSXOverlay.id}
           securityGroups: []
